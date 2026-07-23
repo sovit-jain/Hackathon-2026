@@ -2,7 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    // Use the public backend URL when available; default to the deployed backend URL instead of localhost.
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://skillbridge-backend-740224388005.europe-west1.run.app';
 
     return [
       {
