@@ -66,7 +66,7 @@ export default function LearningPathTransitionPage() {
 
         const profilePayload = {
           name: storedName || '',
-          target_role: storedRole || 'data-analyst',
+          target_role: storedRole || 'db-technology',
           weekly_hours: storedHours ? Number(storedHours) : 5,
           current_level: parsedAssessment?.level || 'beginner',
         };
@@ -131,6 +131,7 @@ export default function LearningPathTransitionPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-200">Your path</p>
             <h2 className="mt-2 text-2xl font-semibold text-white">{pathData.path_name}</h2>
             <p className="mt-3 text-slate-300">{pathData.explanation}</p>
+            <p className="mt-3 border-t border-white/10 pt-3 text-sm text-slate-400">Your learning plan is tailored to your target department and incorporates your strongest skills. These lessons build the foundation for your DB career progression.</p>
             <div className="mt-4 flex flex-wrap gap-2 text-sm text-slate-300">
               <span className="rounded-full bg-white/10 px-3 py-1">Score: {pathData.score}%</span>
               <span className="rounded-full bg-white/10 px-3 py-1">Level: {pathData.level}</span>

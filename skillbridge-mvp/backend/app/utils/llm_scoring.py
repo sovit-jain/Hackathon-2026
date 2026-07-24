@@ -80,21 +80,38 @@ def score_skills_assessment(skills: List[str], goal: str, employment_status: Opt
             'source': 'rule',
         }
 
-    # Define skill weights
+    # Define skill weights — legacy + Deutsche Bank skills
     skill_weights = {
+        # Legacy
         "Hindi": 1, "English": 1,
-        "MS Word": 2, "MS Excel": 2,
+        "MS Word": 2, "MS Excel": 2, "Excel": 2,
         "Excel Advanced": 3, "PowerPoint": 3,
-        "Python": 5, "SQL": 5, "JavaScript": 5,
+        "Python": 5, "SQL": 5, "JavaScript": 4,
         "Data Analysis": 6, "Business Intelligence": 6,
         "Machine Learning": 8, "Cloud": 8,
+        # Deutsche Bank skills
+        "Risk Management": 7, "Financial Modelling": 6, "Basel III": 6,
+        "Credit Analysis": 6, "VaR": 6, "Stress Testing": 5, "Risk Reporting": 5,
+        "AML": 6, "KYC": 6, "Regulatory Compliance": 6, "Risk Assessment": 5,
+        "Financial Crime": 5, "Reporting": 4,
+        "API Development": 5, "Agile": 4, "CI/CD": 5, "Microservices": 6,
+        "Java": 5, "Cloud (AWS/Azure)": 7,
+        "Derivatives Pricing": 8, "Monte Carlo": 7, "Linear Algebra": 6,
+        "Statistics": 6, "R": 5,
+        "Product Management": 6, "Stakeholder Management": 5, "Roadmapping": 4,
+        "Analytics": 5, "UX Design": 4,
+        "AWS": 7, "Azure": 7, "GCP": 7, "Terraform": 7,
+        "Kubernetes": 7, "Docker": 6, "DevOps": 6,
+        "TensorFlow": 7, "PyTorch": 7, "Deep Learning": 8,
+        "MLOps": 7, "Data Pipeline": 6, "Apache Spark": 7,
+        "Airflow": 6, "Power BI": 5, "Data Warehouse": 6, "ETL": 5,
     }
     
     # Calculate raw score based on weights
-    raw_score = sum(skill_weights.get(skill, 0) for skill in selected_skills)
-    max_possible = sum(skill_weights.values())  # 65
+    raw_score = sum(skill_weights.get(skill, 3) for skill in selected_skills)  # 3pt default for unknown skills
+    max_possible = max(sum(skill_weights.values()), 1)
     
-    # Normalize to 0-100 scale
+    # Normalize to 0-100 scale, cap at 100
     score = int((raw_score / max_possible) * 100)
     score = max(0, min(100, score))
 
@@ -109,7 +126,12 @@ def score_skills_assessment(skills: List[str], goal: str, employment_status: Opt
         explanation = 'Your current skills are still developing, so the next step is to strengthen a few key areas.'
 
     top_skill = selected_skills[0] if selected_skills else 'None'
-    missing_key_skill = 'Python' if goal == 'data-analyst' else 'Communication'
+    db_missing = {
+        'db-risk': 'Risk Management', 'db-technology': 'Python', 'db-compliance': 'AML',
+        'db-quant': 'Statistics', 'db-product': 'Product Management', 'db-cloud': 'AWS',
+        'db-ml': 'Machine Learning', 'db-data': 'SQL',
+    }
+    missing_key_skill = db_missing.get(goal, 'Python')
     return {
         'score': score,
         'level': level,
@@ -141,7 +163,7 @@ def llm_score_assessment(
         return score_skills_assessment(skills, goal, employment_status)
 
     system_prompt = (
-        'You are an assessment coach for job seekers. Score the user\'s current skill profile based on weights and relevance to their target role. '
+        'You are a Deutsche Bank career readiness coach. Score the user\'s current skill profile based on weights and relevance to their target role. '
         'Use this skill weight system:\n'
         '- Life Skills (Hindi, English): 1 point each\n'
         '- Basic Computer (MS Word, MS Excel): 2 points each\n'
@@ -153,7 +175,9 @@ def llm_score_assessment(
         'Score ranges: 0-39 = beginner, 40-69 = intermediate, 70-100 = advanced\n'
         'Return ONLY a JSON object with keys: score (integer 0-100), level (beginner|intermediate|advanced), '
         'label (short string), summary (short string), top_skill (the highest value skill selected), missing_key_skill (most important skill to learn), '
-        'and explanation (short string). Calculate score by: (sum of selected skill weights / 65) * 100'
+        'and explanation (short string). Calculate score by: (sum of selected skill weights / 65) * 100. '
+        'Frame the summary and explanation as a practical Deutsche Bank readiness story. '
+        'Use role-aware advice and prefer concise, realistic coaching language.'
     )
     user_prompt = f"Context:\n{json.dumps(user_context)}\n\nRespond with JSON only."
     logger.info('Skill assessment system prompt: %s', system_prompt)

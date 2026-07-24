@@ -3,8 +3,8 @@ import './globals.css';
 import '@/lib/api';
 
 export const metadata: Metadata = {
-  title: 'SkillBridge',
-  description: 'AI-powered personalized learning for career growth',
+  title: 'DB Career Navigator',
+  description: 'AI-powered Deutsche Bank career readiness and progression planning',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

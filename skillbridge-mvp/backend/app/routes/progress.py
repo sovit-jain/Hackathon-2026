@@ -153,6 +153,14 @@ def get_dashboard(
         next_focus_skill=next_focus_skill or "Consistency",
         next_move_priority=get_priority_badge(latest_score),
         next_move=next_move_text,
+        # DB AI Career Navigator fields
+        user_path=profile.user_path if profile else None,
+        score_type=profile.score_type if profile and profile.score_type else (
+            "DB Career Score" if not profile or profile.user_path == "A" else
+            "DB Readiness Score" if profile.user_path == "B" else
+            "Employability Score"
+        ),
+        jobs_locked=(profile.user_path == "C" and not (profile.jobs_unlocked or False)) if profile else False,
     )
     logger.info("Dashboard returned user_id=%s completed_lessons=%s total_lessons=%s latest_score=%s", current_user.id, completed_lessons, total_lessons, latest_score)
     return result

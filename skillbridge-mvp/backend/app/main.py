@@ -23,15 +23,20 @@ from app.utils.db_migration import ensure_job_columns, ensure_profile_columns
 setup_logging()
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="SkillBridge API", version="1.0.0")
+app = FastAPI(title="DB Career Navigator API", version="1.0.0")
 
 frontend_origin = os.getenv("FRONTEND_URL", "http://localhost:3000")
-allowed_origins = ["http://localhost:3000", frontend_origin]
+allowed_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    frontend_origin,
+]
 
 # Allow the local frontend during development and the deployed frontend in production.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):300[0-9]",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -68,5 +73,5 @@ def startup_event() -> None:
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    logger.exception("Unhandled exception for %s %s", request.method, request.url)
+    logger.exception("Unhandled exception for %s %s", request.method, request.url.path)
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})

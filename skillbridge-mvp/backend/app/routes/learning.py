@@ -24,9 +24,9 @@ router = APIRouter(prefix="/api/learning", tags=["learning"])
 
 
 def _normalize_role(role: Optional[str]) -> str:
-    normalized_role = (role or "data-analyst").strip().lower().replace(" ", "-")
+    normalized_role = (role or "db-technology").strip().lower().replace(" ", "-")
     if normalized_role not in ROLE_LESSON_BLUEPRINTS:
-        return "data-analyst"
+        return "db-technology"
     return normalized_role
 
 
@@ -93,6 +93,64 @@ def ensure_role_lessons(db: Session, role: Optional[str]) -> None:
 
 
 ROLE_LESSON_BLUEPRINTS: Dict[str, List[Dict[str, Any]]] = {
+    # Deutsche Bank role paths
+    "db-risk": [
+        {"title": "Risk Management Fundamentals", "description": "Understand the core pillars of credit, market, and operational risk within a global bank like Deutsche Bank.", "level": "beginner", "estimated_minutes": 25, "lesson_order": 1},
+        {"title": "Credit Risk Analysis", "description": "Learn how to assess counterparty creditworthiness, build credit models, and interpret financial statements for risk decisions.", "level": "beginner", "estimated_minutes": 25, "lesson_order": 2},
+        {"title": "Market Risk and VaR", "description": "Master Value-at-Risk methodologies, stress testing, and the measurement of trading book risk exposures.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 3},
+        {"title": "Basel III and Regulatory Capital", "description": "Navigate the Basel III framework, capital adequacy requirements, and how they shape Deutsche Bank's risk strategy.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 4},
+        {"title": "Stress Testing and Scenario Analysis", "description": "Design and execute stress tests that help senior management understand tail risk and guide capital planning.", "level": "intermediate", "estimated_minutes": 25, "lesson_order": 5},
+    ],
+    "db-technology": [
+        {"title": "Python for Financial Systems", "description": "Build reliable Python services and scripts for core banking, payments, and financial data processing at Deutsche Bank.", "level": "beginner", "estimated_minutes": 25, "lesson_order": 1},
+        {"title": "API Development and Integration", "description": "Design RESTful APIs that connect banking services, third-party providers, and internal microservices.", "level": "beginner", "estimated_minutes": 25, "lesson_order": 2},
+        {"title": "Agile and DevOps Practices", "description": "Apply Scrum, CI/CD pipelines, and DevOps culture to deliver high-quality banking software faster.", "level": "intermediate", "estimated_minutes": 25, "lesson_order": 3},
+        {"title": "Cloud Architecture for Banking", "description": "Understand AWS and Azure cloud patterns used in regulated financial services environments.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 4},
+        {"title": "System Design for Financial Services", "description": "Design scalable, resilient, and secure system architectures that meet Deutsche Bank's non-functional requirements.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 5},
+    ],
+    "db-compliance": [
+        {"title": "AML and Financial Crime", "description": "Master anti-money laundering typologies, transaction monitoring, and suspicious activity reporting.", "level": "beginner", "estimated_minutes": 25, "lesson_order": 1},
+        {"title": "KYC and Customer Due Diligence", "description": "Learn Know Your Customer processes, enhanced due diligence, and beneficial ownership frameworks.", "level": "beginner", "estimated_minutes": 25, "lesson_order": 2},
+        {"title": "Regulatory Reporting", "description": "Understand Deutsche Bank's obligations to report to ECB, BaFin, FCA, and MAS and produce accurate submissions.", "level": "intermediate", "estimated_minutes": 25, "lesson_order": 3},
+        {"title": "Risk-Based Compliance", "description": "Apply risk-based approaches to prioritise compliance effort and advise business lines on regulatory risk.", "level": "intermediate", "estimated_minutes": 25, "lesson_order": 4},
+        {"title": "Sanctions and PEPs Screening", "description": "Implement effective sanctions screening programmes and manage PEP risk in line with OFAC and EU regulations.", "level": "intermediate", "estimated_minutes": 25, "lesson_order": 5},
+    ],
+    "db-quant": [
+        {"title": "Quantitative Finance Foundations", "description": "Build your foundation in financial mathematics, probability, and the quantitative tools used in banking.", "level": "beginner", "estimated_minutes": 30, "lesson_order": 1},
+        {"title": "Derivatives Pricing", "description": "Apply Black-Scholes, binomial trees, and numerical methods to price equity, FX, and rates derivatives.", "level": "beginner", "estimated_minutes": 30, "lesson_order": 2},
+        {"title": "Statistical Modelling for Finance", "description": "Use regression, time series, and factor models to analyse financial data and forecast market behaviour.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 3},
+        {"title": "Monte Carlo Simulation", "description": "Build Monte Carlo simulations for risk measurement, options pricing, and portfolio analysis.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 4},
+        {"title": "Machine Learning in Finance", "description": "Apply supervised and unsupervised ML to credit scoring, fraud detection, and algorithmic trading.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 5},
+    ],
+    "db-product": [
+        {"title": "Product Management in Banking", "description": "Understand how product management works in a regulated financial services environment like Deutsche Bank.", "level": "beginner", "estimated_minutes": 20, "lesson_order": 1},
+        {"title": "Agile Product Development", "description": "Run Agile ceremonies, write user stories, and manage backlogs to deliver banking product features efficiently.", "level": "beginner", "estimated_minutes": 25, "lesson_order": 2},
+        {"title": "Stakeholder Management", "description": "Build productive relationships with Technology, Risk, Compliance, and senior business stakeholders.", "level": "intermediate", "estimated_minutes": 20, "lesson_order": 3},
+        {"title": "Product Roadmapping", "description": "Create, prioritise, and communicate product roadmaps that align with Deutsche Bank's strategic goals.", "level": "intermediate", "estimated_minutes": 25, "lesson_order": 4},
+        {"title": "Data-Driven Product Decisions", "description": "Use analytics, A/B testing, and product metrics to make evidence-based decisions for Deutsche Bank's digital products.", "level": "intermediate", "estimated_minutes": 25, "lesson_order": 5},
+    ],
+    "db-cloud": [
+        {"title": "Cloud Fundamentals for Banking", "description": "Understand cloud concepts, shared responsibility models, and why financial services firms choose AWS and Azure.", "level": "beginner", "estimated_minutes": 25, "lesson_order": 1},
+        {"title": "AWS and Azure for Financial Services", "description": "Navigate core cloud services, IAM, and networking patterns used in regulated banking environments.", "level": "beginner", "estimated_minutes": 30, "lesson_order": 2},
+        {"title": "Infrastructure as Code with Terraform", "description": "Automate cloud infrastructure provisioning using Terraform and manage state reliably at scale.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 3},
+        {"title": "Kubernetes and Container Orchestration", "description": "Deploy and scale containerised banking applications using Kubernetes with strong operational practices.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 4},
+        {"title": "Cloud Security and Compliance", "description": "Implement security controls, encryption, and compliance frameworks for Deutsche Bank's cloud environments.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 5},
+    ],
+    "db-ml": [
+        {"title": "Machine Learning for Finance", "description": "Apply core ML algorithms to financial problems including credit scoring, fraud detection, and market prediction.", "level": "beginner", "estimated_minutes": 30, "lesson_order": 1},
+        {"title": "Feature Engineering for Financial Data", "description": "Transform raw financial time-series and transactional data into high-quality model features.", "level": "beginner", "estimated_minutes": 25, "lesson_order": 2},
+        {"title": "Model Validation and Risk", "description": "Validate ML models rigorously to meet Deutsche Bank's model risk management requirements.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 3},
+        {"title": "MLOps and Deployment", "description": "Build end-to-end ML pipelines, automate training, and deploy models to production with monitoring.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 4},
+        {"title": "Explainable AI in Banking", "description": "Apply SHAP, LIME, and explainability frameworks to make ML models understandable to regulators and senior management.", "level": "intermediate", "estimated_minutes": 25, "lesson_order": 5},
+    ],
+    "db-data": [
+        {"title": "Data Engineering Fundamentals", "description": "Master the core concepts of data modelling, pipeline architecture, and warehouse design for banking.", "level": "beginner", "estimated_minutes": 25, "lesson_order": 1},
+        {"title": "SQL for Banking Analytics", "description": "Write complex queries, CTEs, and window functions to extract insights from Deutsche Bank's financial data.", "level": "beginner", "estimated_minutes": 25, "lesson_order": 2},
+        {"title": "ETL and Data Pipeline Design", "description": "Build reliable extraction, transformation, and load pipelines for financial data at scale.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 3},
+        {"title": "Apache Spark for Financial Data", "description": "Process large-scale financial datasets with Spark, optimise jobs, and integrate with cloud data lakes.", "level": "intermediate", "estimated_minutes": 30, "lesson_order": 4},
+        {"title": "Data Governance and Quality", "description": "Implement data quality frameworks, lineage tracking, and governance processes that meet BCBS 239 requirements.", "level": "intermediate", "estimated_minutes": 25, "lesson_order": 5},
+    ],
+    # Legacy paths (backward compat)
     "tech-support": [
         {"title": "Excel Essentials for Support", "description": "Build confidence with the spreadsheets and documentation habits that support teams rely on.", "level": "beginner", "estimated_minutes": 20, "lesson_order": 1},
         {"title": "Troubleshooting and Ticket Triage", "description": "Learn how to classify problems, document symptoms, and move requests forward with clarity.", "level": "beginner", "estimated_minutes": 25, "lesson_order": 2},
@@ -344,6 +402,27 @@ def complete_lesson(
 
     db.commit()
     logger.info("Lesson completed lesson_id=%s user_id=%s", lesson_id, current_user.id)
+
+    # Path C: unlock jobs when score >= 60
+    profile = db.query(Profile).filter(Profile.user_id == current_user.id).first()
+    if profile and profile.user_path == "C" and not profile.jobs_unlocked:
+        latest_assessment = (
+            db.query(Assessment)
+            .filter(Assessment.user_id == current_user.id)
+            .order_by(Assessment.created_at.desc())
+            .first()
+        )
+        current_score = latest_assessment.score if latest_assessment else 0
+        completed_count = db.query(LessonProgress).filter(
+            LessonProgress.user_id == current_user.id, LessonProgress.completed.is_(True)
+        ).count()
+        # Compute dynamic score: base assessment + 8 points per completed lesson
+        dynamic_score = min(100, current_score + (completed_count * 8))
+        if dynamic_score >= 60:
+            profile.jobs_unlocked = True
+            db.commit()
+            logger.info("Jobs unlocked for Path C user_id=%s dynamic_score=%s", current_user.id, dynamic_score)
+
     return {"message": f"Completed {lesson.title}", "lesson_id": lesson.id}
 
 

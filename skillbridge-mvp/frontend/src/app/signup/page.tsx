@@ -46,15 +46,15 @@ export default function SignupPage() {
                 Get started
               </span>
               <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">
-                Join SkillBridge and accelerate your path.
+                Join DB Career Navigator and accelerate your readiness.
               </h1>
               <p className="max-w-xl text-sm leading-6 text-slate-100/85 sm:text-base">
-                Create an account to unlock tailored lessons, career guidance, and job match insights.
+                Create an account to unlock Deutsche Bank role readiness planning, tailored learning, and opportunity matching.
               </p>
               <div className="space-y-3 rounded-3xl border border-white/10 bg-white/5 p-5 text-sm text-slate-100/80 shadow-inner shadow-white/5">
                 <p>• Personalized onboarding</p>
-                <p>• Skill-based progress tracking</p>
-                <p>• Relevant job suggestions</p>
+                <p>• Role readiness tracking</p>
+                <p>• Deutsche Bank opportunity matching</p>
               </div>
             </div>
           </section>
@@ -62,7 +62,7 @@ export default function SignupPage() {
           <section className="rounded-[2rem] bg-slate-950/95 p-10 shadow-2xl shadow-slate-950/20 ring-1 ring-white/10 backdrop-blur-xl">
             <div className="mb-8">
               <h2 className="text-3xl font-semibold">Create your account</h2>
-              <p className="mt-2 text-sm text-slate-400">Start your personalized learning journey with SkillBridge.</p>
+              <p className="mt-2 text-sm text-slate-400">Start your Deutsche Bank career readiness journey with DB Career Navigator.</p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>

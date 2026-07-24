@@ -28,6 +28,9 @@ type DashboardData = {
   next_focus_skill?: string | null;
   next_move_priority?: string;
   next_move?: string | null;
+  user_path?: string | null;
+  score_type?: string | null;
+  jobs_locked?: boolean;
 };
 
 type LearningPathData = {
@@ -266,11 +269,11 @@ export default function DashboardPage() {
         <div className="rounded-[2rem] border border-white/10 bg-white/10 p-8 shadow-[0_30px_80px_rgba(15,23,42,0.45)] backdrop-blur-xl">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-sm text-slate-300">SkillBridge EU</p>
+              <p className="text-sm text-slate-300">DB Career Navigator</p>
               <h1 className="text-3xl font-semibold text-white">Hi {userName}! 👋</h1>
             </div>
             <div className="flex items-center gap-3">
-              <div className="rounded-full bg-indigo-500/20 px-4 py-2 text-sm font-medium text-indigo-100">
+              <div className="rounded-full bg-[#0018A8]/20 px-4 py-2 text-sm font-medium text-blue-100">
                 {roleLabel} • {dashboard?.current_level || 'beginner'}
               </div>
               <LogoutButton />
@@ -278,9 +281,9 @@ export default function DashboardPage() {
           </div>
 
           <div className="mt-8 rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-6">
-            <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-indigo-200">
+            <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-blue-200">
               <span>🤖</span>
-              <span>Your AI-Personalized Path</span>
+              <span>Your Deutsche Bank Readiness Plan</span>
             </div>
             <p className="mt-3 text-lg text-slate-200">{pathExplanation}</p>
           </div>
@@ -290,19 +293,29 @@ export default function DashboardPage() {
           <h2 className="text-xl font-semibold text-white">Your progress</h2>
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
-              <p className="text-sm text-slate-400">Skill Score</p>
+              <p className="text-sm text-slate-400">{dashboard?.score_type || (dashboard?.user_path === 'C' ? 'Employability Score' : 'DB Career Score')}</p>
               <p className="mt-2 text-3xl font-semibold text-white">{dashboard?.skill_score ?? dashboard?.latest_score ?? 0}/100</p>
-              <p className="mt-2 text-sm text-slate-300">{topSkill} • {dashboard?.skill_level || dashboard?.current_level || 'beginner'}</p>
+              <p className="text-xs text-slate-500 mt-1">Score is 0–100. Higher score = closer to your DB career goal.</p>
+              <p className="mt-3 text-sm text-slate-300">{topSkill} • {dashboard?.skill_level || dashboard?.current_level || 'beginner'}</p>
+              {dashboard?.user_path === 'C' && dashboard?.jobs_locked && (
+                <p className="mt-3 text-xs text-amber-400">🔒 Your current score: {dashboard?.skill_score ?? 0}. Jobs unlock at 60. Complete {Math.max(0, 60 - (dashboard?.skill_score ?? 0))} more points of lessons to get there.</p>
+              )}
+              {dashboard?.user_path === 'C' && !dashboard?.jobs_locked && (
+                <p className="mt-3 text-xs text-emerald-400">✅ Jobs unlocked!</p>
+              )}
+              {(dashboard?.user_path === 'A' || dashboard?.user_path === 'B') && (
+                <p className="mt-3 text-xs text-slate-400">Your score updates as you complete lessons.</p>
+              )}
             </div>
             <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
-              <p className="text-sm text-slate-400">Lessons</p>
-              <p className="mt-2 text-3xl font-semibold text-white">{dashboard?.lessons_completed ?? dashboard?.completed_lessons ?? 0} / {dashboard?.total_lessons ?? (learningPath?.lessons?.length || 5)}</p>
-              <p className="mt-2 text-sm text-slate-300">{dashboard?.completion_percent ?? dashboard?.completion_rate ?? 0}% done</p>
+              <p className="text-sm text-slate-400">Career progression</p>
+              <p className="mt-2 text-3xl font-semibold text-white">Analyst → AVP → VP</p>
+              <p className="mt-2 text-sm text-slate-300">Role progression traced for your target Deutsche Bank path</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
-              <p className="text-sm text-slate-400">Next focus</p>
-              <p className="mt-2 text-3xl font-semibold text-white">{nextSkill}</p>
-              <p className="mt-2 text-sm text-slate-300">{weeklyHours ? `${weeklyHours} hrs/week` : 'Build a steady routine'}</p>
+              <p className="text-sm text-slate-400">Top matching Deutsche Bank vacancy</p>
+              <p className="mt-2 text-3xl font-semibold text-white">{topJob?.title || 'Role fit'}</p>
+              <p className="mt-2 text-sm text-slate-300">{topJob ? `${topJob.match_score}% Readiness Match` : 'Complete more lessons to surface stronger job fit.'}</p>
             </div>
           </div>
         </div>

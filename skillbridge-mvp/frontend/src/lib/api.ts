@@ -1,6 +1,7 @@
 import axios, { AxiosHeaders } from 'axios';
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL || '';
+// Local development default: override via NEXT_PUBLIC_API_URL for cloud deployment.
+const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 const api = axios.create({
   baseURL,

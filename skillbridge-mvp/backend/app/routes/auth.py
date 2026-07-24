@@ -40,7 +40,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> Token:
     db.add(user)
     db.flush()
 
-    profile = Profile(user_id=user.id, target_role="data-analyst", weekly_hours=5, current_level="beginner")
+    profile = Profile(user_id=user.id, target_role="db-technology", weekly_hours=5, current_level="beginner")
     db.add(profile)
     db.commit()
     db.refresh(user)
@@ -70,8 +70,8 @@ def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)] = None,
     db: Session = Depends(get_db),
 ) -> User:
-    auth_header = request.headers.get("authorization")
-    logger.info("get_current_user authorization_header=%s credentials=%s", auth_header, credentials)
+    auth_header_present = "authorization" in request.headers
+    logger.debug("get_current_user auth_header_present=%s", auth_header_present)
     if not credentials or not credentials.credentials:
         logger.warning("Authentication failed: missing bearer token")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")

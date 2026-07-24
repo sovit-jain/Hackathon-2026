@@ -7,8 +7,18 @@ def _normalize_skill(skill: Optional[str]) -> str:
 
 
 def get_required_skills_for_role(profile_role: Optional[str]) -> List[str]:
-    normalized_role = (profile_role or "data-analyst").strip().lower().replace(" ", "-")
+    normalized_role = (profile_role or "db-technology").strip().lower().replace(" ", "-")
     role_map = {
+        # Deutsche Bank roles
+        "db-risk": ["risk management", "python", "excel", "sql", "financial modelling", "basel iii"],
+        "db-technology": ["python", "sql", "api development", "agile", "cloud"],
+        "db-compliance": ["aml", "kyc", "regulatory compliance", "risk assessment", "excel"],
+        "db-quant": ["python", "statistics", "derivatives pricing", "monte carlo", "linear algebra"],
+        "db-product": ["product management", "agile", "stakeholder management", "analytics", "roadmapping"],
+        "db-cloud": ["aws", "azure", "terraform", "kubernetes", "docker", "python"],
+        "db-ml": ["python", "machine learning", "tensorflow", "statistics", "mlops", "sql"],
+        "db-data": ["sql", "python", "etl", "data pipeline", "apache spark", "data warehouse"],
+        # Legacy roles (backward compat)
         "data-analyst": ["sql", "excel", "analysis", "dashboard"],
         "tech-support": ["excel", "support", "troubleshooting", "documentation"],
         "business-analyst": ["stakeholder", "process", "requirements", "analysis"],
@@ -16,7 +26,7 @@ def get_required_skills_for_role(profile_role: Optional[str]) -> List[str]:
         "data-engineer": ["python", "sql", "pipeline", "etl"],
         "ml-engineer": ["python", "machine learning", "cloud", "model"],
     }
-    return role_map.get(normalized_role, role_map["data-analyst"])
+    return role_map.get(normalized_role, role_map["db-technology"])
 
 
 def calculate_assessment_score(answers: List[dict]) -> int:
@@ -37,24 +47,28 @@ def get_next_focus_skill(profile_role: Optional[str], selected_skills: Optional[
         return "Consistency"
 
     display_name_map = {
-        "sql": "SQL",
-        "excel": "Excel",
-        "analysis": "Analysis",
-        "dashboard": "Dashboard",
-        "support": "Support",
-        "troubleshooting": "Troubleshooting",
-        "documentation": "Documentation",
-        "stakeholder": "Stakeholder",
-        "process": "Process",
-        "requirements": "Requirements",
-        "python": "Python",
-        "automation": "Automation",
-        "api": "API",
-        "pipeline": "Pipeline",
-        "etl": "ETL",
-        "machine learning": "Machine Learning",
-        "cloud": "Cloud",
-        "model": "Model",
+        # Legacy
+        "sql": "SQL", "excel": "Excel", "analysis": "Analysis", "dashboard": "Dashboard",
+        "support": "Support", "troubleshooting": "Troubleshooting", "documentation": "Documentation",
+        "stakeholder": "Stakeholder", "process": "Process", "requirements": "Requirements",
+        "python": "Python", "automation": "Automation", "api": "API",
+        "pipeline": "Pipeline", "etl": "ETL", "machine learning": "Machine Learning",
+        "cloud": "Cloud", "model": "Model",
+        # DB roles
+        "risk management": "Risk Management", "financial modelling": "Financial Modelling",
+        "basel iii": "Basel III", "aml": "AML", "kyc": "KYC",
+        "regulatory compliance": "Regulatory Compliance", "risk assessment": "Risk Assessment",
+        "api development": "API Development", "agile": "Agile", "ci cd": "CI/CD",
+        "microservices": "Microservices", "java": "Java",
+        "derivatives pricing": "Derivatives Pricing", "monte carlo": "Monte Carlo",
+        "linear algebra": "Linear Algebra", "statistics": "Statistics", "r": "R",
+        "product management": "Product Management", "analytics": "Analytics",
+        "roadmapping": "Roadmapping", "ux design": "UX Design",
+        "aws": "AWS", "azure": "Azure", "gcp": "GCP", "terraform": "Terraform",
+        "kubernetes": "Kubernetes", "docker": "Docker", "devops": "DevOps",
+        "tensorflow": "TensorFlow", "pytorch": "PyTorch", "deep learning": "Deep Learning",
+        "mlops": "MLOps", "data pipeline": "Data Pipeline", "apache spark": "Apache Spark",
+        "airflow": "Airflow", "power bi": "Power BI", "data warehouse": "Data Warehouse",
     }
 
     normalized_selected_tokens = set()

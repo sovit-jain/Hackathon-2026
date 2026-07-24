@@ -22,34 +22,34 @@ router = APIRouter(prefix="/api/assessment", tags=["assessment"])
 
 SKILL_CATEGORIES = [
     {
-        "category": "Life Skills",
-        "weight": "Basic",
-        "skills": ["Hindi", "English", "None"],
+        "category": "Finance & Banking",
+        "weight": "High",
+        "skills": ["Risk Management", "Financial Modelling", "Basel III", "Credit Analysis", "None"],
     },
     {
-        "category": "Basic Computer",
-        "weight": "Foundation",
-        "skills": ["MS Word", "MS Excel", "None"],
+        "category": "Data & Analytics",
+        "weight": "High",
+        "skills": ["SQL", "Python", "Power BI", "Statistics", "None"],
     },
     {
-        "category": "Intermediate Digital",
+        "category": "Technology",
+        "weight": "High",
+        "skills": ["Cloud (AWS/Azure)", "Java", "API Development", "Agile/DevOps", "None"],
+    },
+    {
+        "category": "Compliance & Regulation",
         "weight": "Medium",
-        "skills": ["Excel Advanced", "PowerPoint", "None"],
+        "skills": ["AML", "KYC", "Regulatory Compliance", "Risk Assessment", "None"],
     },
     {
-        "category": "Programming",
-        "weight": "High",
-        "skills": ["Python", "SQL", "JavaScript", "None"],
-    },
-    {
-        "category": "Analytics",
-        "weight": "High",
-        "skills": ["Data Analysis", "Business Intelligence", "None"],
-    },
-    {
-        "category": "Advanced",
+        "category": "Quantitative Methods",
         "weight": "Expert",
-        "skills": ["Machine Learning", "Cloud", "None"],
+        "skills": ["Derivatives Pricing", "Monte Carlo", "Machine Learning", "Linear Algebra", "None"],
+    },
+    {
+        "category": "Product & Business",
+        "weight": "Medium",
+        "skills": ["Product Management", "Stakeholder Management", "Roadmapping", "Business Analysis", "None"],
     },
 ]
 
@@ -107,6 +107,9 @@ def submit_skills(
     profile.skills_json = json.dumps(skills)
     profile.skill_score = score
     profile.skill_level = level
+    # Path C: auto-unlock jobs when initial score >= 60
+    if profile.user_path == "C" and score >= 60:
+        profile.jobs_unlocked = True
     db.commit()
     db.refresh(profile)
 

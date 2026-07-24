@@ -36,6 +36,9 @@ type Job = {
 type UserProfile = {
   target_role?: string;
   current_level?: string;
+  user_path?: string;
+  jobs_unlocked?: boolean;
+  score_type?: string;
 };
 
 const roleLabelMap: Record<string, string> = {
@@ -190,6 +193,25 @@ export default function JobsPage() {
     return <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-lg text-white">Loading jobs…</main>;
   }
 
+  // Path C: jobs locked until score threshold reached
+  const isPathC = profile?.user_path === 'C';
+  const jobsLocked = isPathC && profile?.jobs_unlocked === false;
+  const scoreLabel = profile?.score_type || (profile?.user_path === 'C' ? 'Employability Score' : 'DB Career Score');
+
+  if (jobsLocked) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-[#001F4D] via-[#003080] to-[#001F4D] px-4 py-10 text-slate-100 flex items-center justify-center">
+        <div className="max-w-lg text-center space-y-6">
+          <div className="text-6xl">🔒</div>
+          <h1 className="text-3xl font-semibold text-white">Deutsche Bank Jobs Locked</h1>
+          <p className="text-slate-300">Your <strong className="text-[#FFD700]">Employability Score</strong> unlocks Deutsche Bank jobs automatically when it reaches <strong>60</strong> — either through assessment or lesson completion.</p>
+          <p className="text-slate-400 text-sm">No action needed. Keep learning!</p>
+          <Link href="/dashboard" className="inline-block rounded-xl bg-[#FFD700] px-6 py-3 font-semibold text-[#001F4D]">Go to my Learning Path →</Link>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 py-10 text-slate-100">
       <BackButton />
@@ -197,11 +219,11 @@ export default function JobsPage() {
         <div className="rounded-[2rem] border border-white/10 bg-white/10 p-8 shadow-[0_30px_80px_rgba(15,23,42,0.45)] backdrop-blur-xl">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-sm text-slate-300">SkillBridge EU</p>
+              <p className="text-sm text-slate-300">DB Career Navigator</p>
               <h1 className="text-3xl font-semibold text-white">Hi {userName}!</h1>
             </div>
             <div className="flex items-center gap-3">
-              <span className="rounded-full border border-indigo-400/30 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-100">
+              <span className="rounded-full border border-[#0018A8]/30 bg-[#0018A8]/10 px-4 py-2 text-sm font-semibold text-blue-100">
                 {roleName} • {skillLevel}
               </span>
               <LogoutButton />
@@ -212,9 +234,14 @@ export default function JobsPage() {
         <div className="rounded-[2rem] border border-slate-700/50 bg-slate-800/30 p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h2 className="text-3xl font-semibold text-white">Job Matches for {roleName}</h2>
-              <p className="mt-2 text-slate-300">{filteredJobs.length} positions match your skills and experience</p>
-              <p className="mt-2 text-sm text-slate-400">Matches are based on your skills only — not your score</p>
+              <h2 className="text-3xl font-semibold text-white">
+                {profile?.user_path === 'A' ? `Deutsche Bank vacancies matching your target ${roleName} role` : profile?.user_path === 'B' ? `Deutsche Bank openings for external candidates like you` : `Deutsche Bank roles suited to your Employability Score`}
+              </h2>
+              <p className="mt-2 text-slate-300">{filteredJobs.length} Deutsche Bank opportunities match your skills and experience</p>
+              <p className="mt-2 text-sm text-slate-400">{profile?.user_path === 'A' ? 'Best matches by level and department' : profile?.user_path === 'B' ? 'Readiness % shows your fit to each role' : 'Match % based on your current Employability Score'}</p>
+              {(profile?.user_path === 'A' || profile?.user_path === 'B') && (
+                <p className="mt-1 text-xs text-slate-400">Jobs are always available. Higher score = better match percentage.</p>
+              )}
             </div>
             <Link href="/onboarding/path-completion" className="rounded-full border border-slate-600 px-5 py-3 font-semibold text-slate-100">← Back to Completion</Link>
           </div>
@@ -233,6 +260,11 @@ export default function JobsPage() {
               <span>Level</span>
               <select value={levelFilter} onChange={(event) => setLevelFilter(event.target.value)} className="bg-transparent outline-none">
                 <option value="all">All</option>
+                <option value="Analyst">Analyst</option>
+                <option value="Associate">Associate</option>
+                <option value="AVP">AVP</option>
+                <option value="VP">VP</option>
+                <option value="Managing Director">Managing Director</option>
                 <option value="junior">Junior</option>
                 <option value="mid-level">Mid-level</option>
                 <option value="senior">Senior</option>
@@ -296,12 +328,12 @@ export default function JobsPage() {
                   </div>
 
                   <div className="mt-6 flex flex-wrap gap-3">
-                    <button type="button" onClick={() => setSelectedJob(job)} className="rounded-full bg-indigo-600 px-5 py-3 font-semibold text-white">View Details</button>
+                    <button type="button" onClick={() => setSelectedJob(job)} className="rounded-full bg-[#0018A8] px-5 py-3 font-semibold text-white">View Details</button>
                     <button type="button" onClick={() => handleToggleSave(job)} className={`rounded-full px-5 py-3 font-semibold ${savedJobs.includes(job.id) ? 'bg-emerald-600 text-white' : 'border border-slate-600 text-slate-100'}`}>
                       {savedJobs.includes(job.id) ? 'Saved ✓' : 'Save Job'}
                     </button>
                     <button type="button" onClick={() => handleApplyNow(job)} disabled={appliedJobIds.includes(job.id)} className={`rounded-full px-5 py-3 font-semibold ${appliedJobIds.includes(job.id) ? 'cursor-default bg-emerald-600 text-white' : 'border border-slate-600 text-slate-100'}`}>
-                      {appliedJobIds.includes(job.id) ? 'Applied ✓' : 'Apply Now'}
+                      {appliedJobIds.includes(job.id) ? 'Applied ✓' : 'Apply at Deutsche Bank'}
                     </button>
                   </div>
                 </div>
@@ -360,8 +392,8 @@ export default function JobsPage() {
               </div>
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
-              <button type="button" onClick={() => handleApplyNow(selectedJob)} disabled={appliedJobIds.includes(selectedJob.id)} className={`rounded-full px-5 py-3 font-semibold ${appliedJobIds.includes(selectedJob.id) ? 'cursor-default bg-emerald-600 text-white' : 'bg-indigo-600 text-white'}`}>
-                {appliedJobIds.includes(selectedJob.id) ? 'Applied ✓' : 'Apply Now'}
+              <button type="button" onClick={() => handleApplyNow(selectedJob)} disabled={appliedJobIds.includes(selectedJob.id)} className={`rounded-full px-5 py-3 font-semibold ${appliedJobIds.includes(selectedJob.id) ? 'cursor-default bg-emerald-600 text-white' : 'bg-[#0018A8] text-white'}`}>
+                {appliedJobIds.includes(selectedJob.id) ? 'Applied ✓' : 'Apply at Deutsche Bank'}
               </button>
               <button type="button" onClick={() => handleToggleSave(selectedJob)} className={`rounded-full px-5 py-3 font-semibold ${savedJobs.includes(selectedJob.id) ? 'bg-emerald-600 text-white' : 'border border-slate-600 text-slate-100'}`}>
                 {savedJobs.includes(selectedJob.id) ? 'Saved ✓' : 'Save Job'}
@@ -418,6 +450,11 @@ export default function JobsPage() {
                   <li>• Expect a response within 5–7 business days</li>
                   <li>• Check your email for confirmation</li>
                 </ul>
+              </div>
+
+              <div className="mt-6 w-full rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-left">
+                <p className="text-sm font-semibold text-amber-200">💡 Keep Learning</p>
+                <p className="mt-2 text-sm text-amber-100/80">You applied for {successJob.title} at Deutsche Bank. Your current score: {profile?.skill_score ?? 0}/100. Keep learning to strengthen your profile for future Deutsche Bank roles.</p>
               </div>
 
               <div className="mt-8 flex flex-wrap justify-center gap-3">

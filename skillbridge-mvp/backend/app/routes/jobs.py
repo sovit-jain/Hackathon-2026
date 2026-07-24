@@ -13,6 +13,11 @@ from app.models.user import User
 from app.routes.auth import get_current_user
 from app.schemas.job import JobOut
 from app.utils.scoring import calculate_job_match, calculate_skill_match_percentage
+from app.utils.designation import (
+    get_applicable_designations,
+    get_designation_from_experience,
+    normalize_designation,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +25,7 @@ router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
 
 def _normalize_role(role: Optional[str]) -> str:
-    return (role or "data-analyst").strip().lower().replace(" ", "-")
+    return (role or "db-technology").strip().lower().replace(" ", "-")
 
 
 def _parse_skills(raw_skills: Optional[object]) -> List[str]:
@@ -120,7 +125,7 @@ def get_jobs(
         .order_by(Assessment.created_at.desc())
         .first()
     )
-    role = _normalize_role(profile.target_role if profile else "data-analyst")
+    role = _normalize_role(profile.target_role if profile else "db-technology")
     level = (profile.skill_level if profile and profile.skill_level else profile.current_level if profile else "beginner") or "beginner"
     score = latest_assessment.score if latest_assessment and latest_assessment.score is not None else (profile.skill_score if profile else 0)
     skills = _parse_skills(profile.skills_json if profile and profile.skills_json else None)
@@ -132,9 +137,51 @@ def get_jobs(
         except (TypeError, ValueError):
             skills = []
 
-    logger.info("Job list requested for user_id=%s role=%s level=%s score=%s", current_user.id, role, level, score)
+    # Path C: lock jobs if score < 60 and jobs_unlocked is False
+    user_path = profile.user_path if profile else None
+    jobs_unlocked = profile.jobs_unlocked if profile else True
+    if user_path == "C" and not jobs_unlocked:
+        logger.info("Jobs locked for Path C user_id=%s score=%s", current_user.id, score)
+        return []
 
-    jobs = db.query(Job).filter(Job.role == role, Job.is_active.is_(True)).all()
+    # Determine user's current designation
+    current_designation = None
+    if profile:
+        if profile.current_designation:
+            # Use explicitly set designation
+            current_designation = normalize_designation(profile.current_designation)
+        elif user_path == "C" and profile.experience_years is not None:
+            # Path C: map from experience years
+            current_designation = get_designation_from_experience(profile.experience_years)
+        elif user_path == "A":
+            # Path A: default to analyst if not set
+            current_designation = "analyst"
+
+    applicable_designations = get_applicable_designations(current_designation)
+    logger.info("Job list requested for user_id=%s role=%s level=%s score=%s path=%s designation=%s applicable=%s", 
+                current_user.id, role, level, score, user_path, current_designation, applicable_designations)
+
+    # Show only Deutsche Bank jobs for DB roles; fall back to role-matched jobs for legacy roles
+    db_role_prefixes = ("db-risk", "db-technology", "db-compliance", "db-quant", "db-product", "db-cloud", "db-ml", "db-data")
+    if role in db_role_prefixes:
+        jobs = db.query(Job).filter(
+            Job.role == role,
+            Job.company == "Deutsche Bank",
+            Job.is_active.is_(True)
+        ).all()
+    else:
+        jobs = db.query(Job).filter(Job.role == role, Job.is_active.is_(True)).all()
+
+    # Filter jobs by applicable designations if designation is set
+    if applicable_designations:
+        filtered_jobs = []
+        for job in jobs:
+            job_level = normalize_designation(job.level)
+            if job_level in applicable_designations:
+                filtered_jobs.append(job)
+        jobs = filtered_jobs
+        logger.info("Filtered jobs by designation user_id=%s original=%d filtered=%d", current_user.id, len(jobs) + len(filtered_jobs), len(jobs))
+
     saved_jobs = db.query(UserSavedJob).filter(UserSavedJob.user_id == current_user.id).all()
     saved_ids = {saved.job_id for saved in saved_jobs}
 
@@ -142,7 +189,7 @@ def get_jobs(
     for job in jobs:
         required_skills = _parse_required_skills(job.required_skills)
         match_score = calculate_skill_match_percentage(skills, required_skills, score=score)
-        reasons = "Strong overlap with your current skills and target role"
+        reasons = "Strong overlap with your current skills and Deutsche Bank target role"
         match = JobMatch(user_id=current_user.id, job_id=job.id, score=match_score, reasons=reasons)
         db.merge(match)
         results.append(_serialize_job(job, skills, saved_ids, reasons, match_score))

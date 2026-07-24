@@ -1,22 +1,28 @@
 from typing import Optional, Sequence, Tuple
 
-DEFAULT_ROLE = "data-analyst"
+DEFAULT_ROLE = "db-technology"
 DEFAULT_LEVEL = "beginner"
 SUPPORTED_LEVELS = {"beginner", "intermediate", "advanced"}
 SUPPORTED_ROLES = {
-    "data-analyst",
-    "business-analyst",
-    "python-developer",
-    "data-engineer",
-    "ml-engineer",
-    "tech-support",
+    # Deutsche Bank roles
+    "db-risk", "db-technology", "db-compliance", "db-quant",
+    "db-product", "db-cloud", "db-ml", "db-data",
+    # Legacy roles (backward compat)
+    "data-analyst", "business-analyst", "python-developer",
+    "data-engineer", "ml-engineer", "tech-support",
 }
 
 
 def resolve_lesson_context(target_role: Optional[str], current_level: Optional[str]) -> Tuple[str, str]:
     normalized_role = (target_role or "").strip().lower().replace(" ", "-")
     if normalized_role not in SUPPORTED_ROLES:
-        normalized_role = DEFAULT_ROLE
+        # Try to map legacy or unknown roles to a supported DB role
+        legacy_map = {
+            "data-analyst": "db-data", "business-analyst": "db-technology",
+            "python-developer": "db-technology", "data-engineer": "db-data",
+            "ml-engineer": "db-ml", "tech-support": "db-technology",
+        }
+        normalized_role = legacy_map.get(normalized_role, DEFAULT_ROLE)
 
     normalized_level = (current_level or "").strip().lower()
     if normalized_level not in SUPPORTED_LEVELS:

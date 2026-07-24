@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -12,7 +12,7 @@ class Profile(Base):
 
     id = Column(String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(50), ForeignKey("users.id"), unique=True, nullable=False)
-    target_role = Column(String(100), default="data-analyst")
+    target_role = Column(String(100), default="db-technology")
     weekly_hours = Column(Integer, default=5)
     current_level = Column(String(50), default="beginner")
     preferred_language = Column(String(50), nullable=True)
@@ -25,7 +25,26 @@ class Profile(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
+    # DB AI Career Navigator path fields
+    user_path = Column(String(10), nullable=True)  # "A" = DB Employee, "B" = External, "C" = Unemployed
+    # Path A - DB Employee
+    current_db_position = Column(String(200), nullable=True)
+    current_db_department = Column(String(100), nullable=True)
+    current_designation = Column(String(50), nullable=True)  # analyst, associate, avp, vp, director
+    # Path B - External Candidate
+    current_company = Column(String(200), nullable=True)
+    current_external_role = Column(String(200), nullable=True)
+    # Path C - Unemployed
+    education = Column(String(500), nullable=True)
+    certifications = Column(String(500), nullable=True)
+    experience_years = Column(Integer, nullable=True)
+    jobs_unlocked = Column(Boolean, default=False)  # Path C: unlocked when score >= 60
+    # Scoring
+    db_score = Column(Integer, nullable=True)
+    score_type = Column(String(50), nullable=True)  # "DB Career Score" / "DB Readiness Score" / "Employability Score"
+
     user = relationship("User", back_populates="profile")
+
 
 
 class Assessment(Base):

@@ -9,36 +9,52 @@ def ensure_profile_columns():
     inspector = inspect(engine)
     cols = [c['name'] for c in inspector.get_columns('profiles')] if 'profiles' in inspector.get_table_names() else []
     with engine.begin() as conn:
-        # Add columns if missing (SQLite supports ADD COLUMN)
         if 'preferred_language' not in cols:
-            logger.info('Adding column preferred_language to profiles')
             conn.execute(text('ALTER TABLE profiles ADD COLUMN preferred_language VARCHAR(50)'))
         if 'country' not in cols:
-            logger.info('Adding column country to profiles')
             conn.execute(text('ALTER TABLE profiles ADD COLUMN country VARCHAR(100)'))
         if 'age' not in cols:
-            logger.info('Adding column age to profiles')
             conn.execute(text('ALTER TABLE profiles ADD COLUMN age INTEGER'))
         if 'employment_status' not in cols:
-            logger.info('Adding column employment_status to profiles')
             conn.execute(text('ALTER TABLE profiles ADD COLUMN employment_status VARCHAR(50)'))
         if 'skills_json' not in cols:
-            logger.info('Adding column skills_json to profiles')
             conn.execute(text("ALTER TABLE profiles ADD COLUMN skills_json VARCHAR(2000) DEFAULT '[]'"))
         if 'skill_score' not in cols:
-            logger.info('Adding column skill_score to profiles')
             conn.execute(text('ALTER TABLE profiles ADD COLUMN skill_score INTEGER'))
         if 'skill_level' not in cols:
-            logger.info('Adding column skill_level to profiles')
             conn.execute(text('ALTER TABLE profiles ADD COLUMN skill_level VARCHAR(50)'))
-        # Ensure assessments table has score_source for auditing
+        # DB AI Career Navigator path columns
+        if 'user_path' not in cols:
+            conn.execute(text('ALTER TABLE profiles ADD COLUMN user_path VARCHAR(10)'))
+        if 'current_db_position' not in cols:
+            conn.execute(text('ALTER TABLE profiles ADD COLUMN current_db_position VARCHAR(200)'))
+        if 'current_db_department' not in cols:
+            conn.execute(text('ALTER TABLE profiles ADD COLUMN current_db_department VARCHAR(100)'))
+        if 'current_designation' not in cols:
+            conn.execute(text('ALTER TABLE profiles ADD COLUMN current_designation VARCHAR(50)'))
+        if 'current_company' not in cols:
+            conn.execute(text('ALTER TABLE profiles ADD COLUMN current_company VARCHAR(200)'))
+        if 'current_external_role' not in cols:
+            conn.execute(text('ALTER TABLE profiles ADD COLUMN current_external_role VARCHAR(200)'))
+        if 'education' not in cols:
+            conn.execute(text('ALTER TABLE profiles ADD COLUMN education VARCHAR(500)'))
+        if 'certifications' not in cols:
+            conn.execute(text('ALTER TABLE profiles ADD COLUMN certifications VARCHAR(500)'))
+        if 'experience_years' not in cols:
+            conn.execute(text('ALTER TABLE profiles ADD COLUMN experience_years INTEGER'))
+        if 'jobs_unlocked' not in cols:
+            conn.execute(text('ALTER TABLE profiles ADD COLUMN jobs_unlocked BOOLEAN DEFAULT FALSE'))
+        if 'db_score' not in cols:
+            conn.execute(text('ALTER TABLE profiles ADD COLUMN db_score INTEGER'))
+        if 'score_type' not in cols:
+            conn.execute(text('ALTER TABLE profiles ADD COLUMN score_type VARCHAR(50)'))
+        # Assessment audit columns
         a_cols = [c['name'] for c in inspector.get_columns('assessments')] if 'assessments' in inspector.get_table_names() else []
         if 'score_source' not in a_cols:
-            logger.info('Adding column score_source to assessments')
             conn.execute(text("ALTER TABLE assessments ADD COLUMN score_source VARCHAR(50) DEFAULT 'rule'"))
         if 'missing_key_skill' not in a_cols:
-            logger.info('Adding column missing_key_skill to assessments')
             conn.execute(text("ALTER TABLE assessments ADD COLUMN missing_key_skill VARCHAR(100)"))
+
 
 
 def ensure_job_columns():

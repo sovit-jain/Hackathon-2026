@@ -51,7 +51,8 @@ export default function AssessmentCompletePage() {
   }, [searchParams, router]);
 
   const handleContinue = () => {
-    router.push('/onboarding?step=dream-job');
+    // Path A/B: go straight to AI learning path generation, then dashboard
+    router.push('/onboarding/ai-learning-path');
   };
 
   if (loading) {
@@ -118,6 +119,7 @@ export default function AssessmentCompletePage() {
                 </div>
               </div>
             </div>
+            <p className="mt-4 border-t border-indigo-500/20 pt-4 text-xs text-indigo-200/80">Score is 0–100. Higher score = closer to your Deutsche Bank career goal.</p>
           </div>
 
           {/* Assessment Summary */}
@@ -153,10 +155,10 @@ export default function AssessmentCompletePage() {
                 🎯 Next Step
               </div>
               <p className="text-lg font-semibold text-amber-100">
-                Choose your target role
+                Build your Deutsche Bank readiness plan
               </p>
               <p className="mt-1 text-sm text-amber-200/70">
-                Your next step will shape the learning path and focus areas for you.
+                Your score and target role are set. Continue to generate your step-by-step DB learning roadmap.
               </p>
             </div>
           </div>
@@ -168,9 +170,9 @@ export default function AssessmentCompletePage() {
                 📚
               </div>
               <div>
-                <h3 className="mb-2 font-semibold text-blue-100">Your Learning Path</h3>
+                <h3 className="mb-2 font-semibold text-blue-100">Your DB Learning Roadmap</h3>
                 <p className="text-sm leading-relaxed text-blue-200/80">
-                  Your assessment score helps us shape the next lessons, and your selected role will refine the path once you continue.
+                  Your Deutsche Bank readiness score and target role are ready. Click continue to generate your personalised DB learning path.
                 </p>
               </div>
             </div>
@@ -181,15 +183,7 @@ export default function AssessmentCompletePage() {
             onClick={handleContinue}
             className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-6 py-4 font-semibold text-white shadow-lg transition hover:from-indigo-700 hover:to-blue-700"
           >
-            Continue to Your Goal →
-          </button>
-
-          {/* Back Button */}
-          <button
-            onClick={() => router.push('/onboarding')}
-            className="mt-3 w-full rounded-xl border border-slate-500 px-6 py-2 font-semibold text-slate-200 transition hover:border-slate-400 hover:bg-slate-800/50"
-          >
-            Back to Assessment
+            Continue to Your DB Learning Roadmap →
           </button>
         </section>
       </div>

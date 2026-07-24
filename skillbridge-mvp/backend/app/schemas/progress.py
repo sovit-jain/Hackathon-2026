@@ -28,3 +28,7 @@ class DashboardOut(BaseModel):
     next_focus_skill: Optional[str] = None
     next_move_priority: str = "MEDIUM"
     next_move: Optional[str] = None
+    # DB AI Career Navigator path fields
+    user_path: Optional[str] = None          # "A", "B", "C"
+    score_type: Optional[str] = None          # "DB Career Score" / "DB Readiness Score" / "Employability Score"
+    jobs_locked: bool = False                 # True for Path C until score >= 60
