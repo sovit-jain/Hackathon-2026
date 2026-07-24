@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',  // ← ADD THIS LINE
   reactStrictMode: true,
   async rewrites() {
-    // API rewrites for Next.js - requires NEXT_PUBLIC_API_URL environment variable
-    // DO NOT add localhost fallback - use env vars in all environments
     const backendUrl = process.env.NEXT_PUBLIC_API_URL;
 
     if (!backendUrl) {
