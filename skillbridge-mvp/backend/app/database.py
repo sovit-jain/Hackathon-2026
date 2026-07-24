@@ -13,6 +13,13 @@ load_dotenv(dotenv_path=BASE_DIR / ".env", override=False)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
+    environment = os.getenv("ENVIRONMENT", "development")
+    if environment == "production":
+        raise ValueError(
+            "DATABASE_URL environment variable is required in production. "
+            "Set DATABASE_URL to your PostgreSQL connection string."
+        )
+    # Development: use local PostgreSQL
     DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/skillbridge"
 
 if DATABASE_URL.startswith("postgres://"):

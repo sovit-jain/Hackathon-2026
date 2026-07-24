@@ -2,10 +2,10 @@ import axios, { AxiosHeaders } from 'axios';
 
 // API base URL from environment variable
 // REQUIRED for both development and production
-const baseURL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
 if (!baseURL && typeof window !== 'undefined') {
-  console.error('NEXT_PUBLIC_API_URL environment variable is not set. API calls will fail.');
+  console.error('NEXT_PUBLIC_API_URL environment variable is not set. API calls will fail. Set it to your backend URL (e.g., http://localhost:8000 or https://your-api.com).');
 }
 
 const api = axios.create({

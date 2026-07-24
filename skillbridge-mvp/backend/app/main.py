@@ -25,18 +25,27 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="DB Career Navigator API", version="1.0.0")
 
-frontend_origin = os.getenv("FRONTEND_URL", "http://localhost:3000")
-allowed_origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    frontend_origin,
-]
+frontend_origin = os.getenv("FRONTEND_URL")
+if not frontend_origin:
+    environment = os.getenv("ENVIRONMENT", "development")
+    if environment == "production":
+        raise ValueError(
+            "FRONTEND_URL environment variable is required in production. "
+            "Set FRONTEND_URL to your frontend domain (e.g., https://your-app.com)"
+        )
+    # Development: allow localhost patterns
+    frontend_origin = "http://localhost:3000"
 
-# Allow the local frontend during development and the deployed frontend in production.
+allowed_origins = [frontend_origin]
+environment = os.getenv("ENVIRONMENT", "development")
+if environment == "development":
+    allowed_origins.extend(["http://localhost:3000", "http://127.0.0.1:3000"])
+
+# Allow the configured frontend origin.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):300[0-9]",
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):300[0-9]" if environment == "development" else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -73,5 +82,5 @@ def startup_event() -> None:
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    logger.exception("Unhandled exception for %s %s", request.method, request.url.path)
+    logger.exception("Unhandled exception for %s %s", request.method, request.url)
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
