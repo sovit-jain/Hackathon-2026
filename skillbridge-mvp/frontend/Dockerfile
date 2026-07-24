@@ -29,4 +29,4 @@ COPY --from=builder /usr/src/app/next.config.js ./next.config.js
 EXPOSE 3000
 
 # Start the Next.js app in production on port 3000
-CMD ["npm", "start", "--", "-p", "3000"]
+CMD ["sh", "-c", "npm start -- -p $PORT"]
