@@ -1,7 +1,12 @@
 import axios, { AxiosHeaders } from 'axios';
 
-// Local development default: override via NEXT_PUBLIC_API_URL for cloud deployment.
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// API base URL from environment variable
+// REQUIRED for both development and production
+const baseURL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+
+if (!baseURL && typeof window !== 'undefined') {
+  console.error('NEXT_PUBLIC_API_URL environment variable is not set. API calls will fail.');
+}
 
 const api = axios.create({
   baseURL,

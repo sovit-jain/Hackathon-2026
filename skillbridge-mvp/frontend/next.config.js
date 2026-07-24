@@ -2,15 +2,20 @@
 const nextConfig = {
   reactStrictMode: true,
   async rewrites() {
-    // Local development default; override via NEXT_PUBLIC_API_URL for cloud deployment.
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    // API rewrites for Next.js - requires NEXT_PUBLIC_API_URL environment variable
+    // DO NOT add localhost fallback - use env vars in all environments
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
 
-    return [
+    if (!backendUrl) {
+      console.warn('NEXT_PUBLIC_API_URL is not set. API rewrites will use relative paths.');
+    }
+
+    return backendUrl ? [
       {
         source: '/api/:path*',
         destination: `${backendUrl}/api/:path*`,
       },
-    ];
+    ] : [];
   },
 };
 
