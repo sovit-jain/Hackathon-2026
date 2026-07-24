@@ -39,6 +39,7 @@ type UserProfile = {
   user_path?: string;
   jobs_unlocked?: boolean;
   score_type?: string;
+  db_score?: number;
 };
 
 const roleLabelMap: Record<string, string> = {
@@ -454,7 +455,7 @@ export default function JobsPage() {
 
               <div className="mt-6 w-full rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-left">
                 <p className="text-sm font-semibold text-amber-200">💡 Keep Learning</p>
-                <p className="mt-2 text-sm text-amber-100/80">You applied for {successJob.title} at Deutsche Bank. Your current score: {profile?.skill_score ?? 0}/100. Keep learning to strengthen your profile for future Deutsche Bank roles.</p>
+                <p className="mt-2 text-sm text-amber-100/80">You applied for {successJob.title} at Deutsche Bank. Your current score: {profile?.db_score ?? 0}/100. Keep learning to strengthen your profile for future Deutsche Bank roles.</p>
               </div>
 
               <div className="mt-8 flex flex-wrap justify-center gap-3">
