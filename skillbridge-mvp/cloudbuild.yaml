@@ -1,0 +1,104 @@
+steps:
+  # Step 1: Build and push frontend Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/skillbridge-frontend:${SHORT_SHA}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/skillbridge-frontend:latest'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_API_URL=${_BACKEND_URL}'
+      - '-f'
+      - 'frontend/Dockerfile'
+      - 'frontend/'
+    id: 'build-frontend'
+
+  # Step 2: Push frontend image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/skillbridge-frontend:${SHORT_SHA}'
+    id: 'push-frontend'
+    waitFor: ['build-frontend']
+
+  # Step 3: Build and push backend Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/skillbridge-backend:${SHORT_SHA}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/skillbridge-backend:latest'
+      - '-f'
+      - 'backend/Dockerfile'
+      - 'backend/'
+    id: 'build-backend'
+
+  # Step 4: Push backend image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/skillbridge-backend:${SHORT_SHA}'
+    id: 'push-backend'
+    waitFor: ['build-backend']
+
+  # Step 5: Deploy frontend to Cloud Run
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    args:
+      - 'run'
+      - '--cloud-run'
+      - '--service-name'
+      - 'skillbridge-frontend'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/skillbridge-frontend:${SHORT_SHA}'
+      - '--region'
+      - '${_REGION}'
+      - '--port'
+      - '3000'
+      - '--allow-unauthenticated'
+    env:
+      - 'CLOUDSDK_COMPUTE_REGION=${_REGION}'
+    id: 'deploy-frontend'
+    waitFor: ['push-frontend']
+
+  # Step 6: Deploy backend to Cloud Run
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    args:
+      - 'run'
+      - '--cloud-run'
+      - '--service-name'
+      - 'skillbridge-backend'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/skillbridge-backend:${SHORT_SHA}'
+      - '--region'
+      - '${_REGION}'
+      - '--port'
+      - '8000'
+      - '--set-env-vars'
+      - 'ENVIRONMENT=production,DATABASE_URL=${_DATABASE_URL},OPENAI_API_KEY=${_OPENAI_API_KEY},FRONTEND_URL=${_FRONTEND_URL}'
+      - '--memory'
+      - '2Gi'
+      - '--cpu'
+      - '2'
+      - '--timeout'
+      - '3600'
+    env:
+      - 'CLOUDSDK_COMPUTE_REGION=${_REGION}'
+    id: 'deploy-backend'
+    waitFor: ['push-backend']
+
+# Define substitution variables that must be provided at build time or via defaults
+substitutions:
+  _REGION: 'us-central1'
+  _REPOSITORY: 'skillbridge'
+  _BACKEND_URL: 'https://skillbridge-backend-xxxxx-uc.a.run.app'  # CHANGE THIS to your backend Cloud Run URL
+  _FRONTEND_URL: 'https://skillbridge-frontend-xxxxx-uc.a.run.app'  # CHANGE THIS to your frontend Cloud Run URL
+  _DATABASE_URL: 'postgresql://user:pass@cloudsql:5432/dbname'  # CHANGE THIS
+  _OPENAI_API_KEY: 'sk-...'  # CHANGE THIS
+
+options:
+  machineType: 'N1_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: '7200s'

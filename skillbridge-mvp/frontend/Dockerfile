@@ -2,8 +2,12 @@
 FROM node:20-alpine AS builder
 WORKDIR /usr/src/app
 
+# Next.js requires NEXT_PUBLIC_API_URL at build time
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
+# If NEXT_PUBLIC_API_URL is not provided, print a warning (will need to be passed at build time)
+RUN if [ -z "$NEXT_PUBLIC_API_URL" ]; then echo "WARNING: NEXT_PUBLIC_API_URL not set at build time. Must pass --build-arg NEXT_PUBLIC_API_URL=<backend-url> to docker build"; fi
 
 # Install exact dependencies from package-lock.json
 COPY package.json package-lock.json ./
